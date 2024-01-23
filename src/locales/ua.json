@@ -1,0 +1,62 @@
+{
+    "menu": {
+        "home": "Головна",
+        "shop": "Магазин",
+        "blog": "Блог",
+        "ourStory": "Наша історія"
+    },
+    "footerMenu": {
+        "contacts": "Контакти",
+        "termsServices": "Умови надання послуг",
+        "shipingReturns": "Доставка та повернення"
+    },
+    "titles": {
+        "shopLatest": "Купуйте останні",
+        "account": "Мій профіль"
+    },
+    "btnTitles": {
+        "vievProdyct": "Переглянути товар",
+        "add": "Додати в кошик",
+        "singIn": "Увійти",
+        "singOut": "Вийти",
+        "registrater": "Зареєструватись",
+        "home": "Головна сторінка"
+    },
+    "productOptionsBtn": {
+        "description": "Опис",
+        "aditionalInformation": "Додаткова інформація"
+    },
+    "alertMessage": {
+        "addBasket": "Товар додано до вашої корзини",
+        "addFavorite": "Додати в улюблені"
+    },
+    "placeholderTitles": {
+        "search": "Пошук",
+        "shopBy": "Купуйте за",
+        "sortBy": "Сортуйте за",
+        "email": "Email",
+        "password": "Пароль",
+        "firstName": "Ім'я",
+        "lastName": "Прізвище"
+    },
+    "validation": {
+        "requiredField": "обов'язкове поле",
+        "minLength": "мінімальна довжина",
+        "incorrectInput": "не коректний ввід"
+    },
+    "categories": {
+        "ring": "Каблучки",
+        "earring": "Сережки",
+        "necklace": "Намисто",
+        "other": "Інше"
+    },
+    "errorMessage": {
+        "auth": "Помилка авторизації — неправильна електронна адреса або пароль",
+        "error": "Помилка",
+        "registrate": "Користувач вже існує"
+    },
+    "userAccountMessage": {
+        "emptyOrders": "Замовлення ще не зроблено",
+        "emptyFavorite": "Вибраних ще немає"
+    }
+}

@@ -1,0 +1,62 @@
+{
+    "menu": {
+        "home": "Home",
+        "shop": "Shop",
+        "blog": "Blog",
+        "ourStory": "Our story"
+    },
+    "footerMenu": {
+        "contacts": "Contacts",
+        "termsServices": "Terms of services",
+        "shipingReturns": "Shiping and returns"
+    },
+    "titles": {
+        "shopLatest": "Shop the latest",
+        "account": "My account"
+    },
+    "btnTitles": {
+        "vievProdyct": "View product",
+        "add": "Add to cart",
+        "singIn": "Sing in",
+        "singOut": "Sing out",
+        "registrater": "registrater",
+        "home": "Home page"
+    },
+    "productOptionsBtn": {
+        "description": "Description",
+        "aditionalInformation": "Aditional information"
+    },
+    "alertMessage": {
+        "addBasket": "The item added to your Shopping bag",
+        "addFavorite": "Add to favorite"
+    },
+    "placeholderTitles": {
+        "search": "Search",
+        "shopBy": "Shop By",
+        "sortBy": "Sort By",
+        "email": "Email",
+        "password": "Password",
+        "firstName": "First name",
+        "lastName": "Last name"
+    },
+    "validation": {
+        "requiredField": "required field",
+        "minLength": "minimal length",
+        "incorrectInput": "incorrect input"
+    },
+    "categories": {
+        "ring": "Rings",
+        "earring": "Earrings",
+        "necklace": "Necklace",
+        "other": "Other"
+    },
+    "errorMessage": {
+        "auth": "Authorization error - Invalid email address or password",
+        "error": "Error",
+        "registrate": "User already exists"
+    },
+    "userAccountMessage": {
+        "emptyOrders": "No order has been made yet",
+        "emptyFavorite": "No favorites available yet."
+    }
+}
