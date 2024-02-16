@@ -22,9 +22,12 @@
           <v-list-item :to="{ name: 'home' }">{{
             $t("menu.home")
           }}</v-list-item>
-          <v-list-item :to="{ name: 'shop' }">{{
-            $t("menu.shop")
-          }}</v-list-item>
+          <template v-if="userPermissions.write">
+            <v-list-item :to="{ name: 'admin_add' }">{{
+              $t("menu.adminAdd")
+            }}</v-list-item>
+          </template>
+
           <v-list-item :to="{ name: 'blog' }">{{
             $t("menu.blog")
           }}</v-list-item>
@@ -44,11 +47,9 @@
           </v-list-item>
 
           <v-list-item v-if="getUser" @click="singOutUser">
-            <!-- <v-btn > -->
             <span>
               <font-awesome-icon :icon="['fas', 'arrow-right-from-bracket']"
             /></span>
-            <!-- </v-btn> -->
           </v-list-item>
           <v-list-item :to="{ name: 'login' }" v-else>
             <span>
@@ -63,8 +64,8 @@
           <v-list-item :to="{ name: 'home' }">{{
             $t("menu.home")
           }}</v-list-item>
-          <v-list-item :to="{ name: 'shop' }">{{
-            $t("menu.shop")
+          <v-list-item :to="{ name: 'admin_add' }">{{
+            $t("menu.adminAdd")
           }}</v-list-item>
           <v-list-item :to="{ name: 'blog' }">{{
             $t("menu.blog")
@@ -83,16 +84,18 @@
 
       <v-main>
         <div class="content">
-          <div v-if="isLoading">
-            <span>Loading...</span>
-            <font-awesome-icon :icon="['fas', 'rotate-right']" />
+          <div v-if="getLoadind" class="loading-spinner">
+            <v-progress-circular
+              indeterminate
+              color="primary"
+            ></v-progress-circular>
           </div>
-          <div v-else-if="hasError">
-            <span>Error </span>
-            <font-awesome-icon :icon="['fas', 'triangle-exclamation']" />
-          </div>
-          <slot v-else></slot>
-          <!-- <div>{{ getUser }}</div> -->
+          <slot v-else> </slot>
+          <alert-card
+            :mesageAlert="messageError"
+            typeAlert="error"
+            v-show="visibleAlert"
+          />
         </div>
       </v-main>
 
@@ -102,11 +105,8 @@
             <v-list-item :to="{ name: 'contact' }">{{
               $t("footerMenu.contacts")
             }}</v-list-item>
-            <v-list-item :to="{ name: 'tearms_of_services' }">{{
-              $t("footerMenu.termsServices")
-            }}</v-list-item>
-            <v-list-item :to="{ name: 'shiping_end_returns' }">{{
-              $t("footerMenu.shipingReturns")
+            <v-list-item :to="{ name: 'privicy_policyView' }">{{
+              $t("footerMenu.privycyPolicy")
             }}</v-list-item>
           </v-list>
           <v-spacer></v-spacer>
@@ -133,26 +133,40 @@
 
 <script>
 import { mapActions, mapGetters } from "vuex";
+import AlertCard from "@/components/AlertCard.vue";
+import dataSocialMediia from "@/masterpage/dataSocialMediia";
+
 export default {
   name: "MainMasterPage",
+  components: {
+    AlertCard,
+  },
   data: () => ({
+    messageError: null,
+    visibleAlert: false,
     logoImg: require("@/assets/img/logo.png"),
     drawer: false,
     group: null,
     screenWidth: window.innerWidth,
-    //icon for  media
-    socialMedia: [
-      //!!!!! перемістити іконки в інший файл
-      { icon: "linkedin-in", url: "https://www.linkedin.com/" },
-      { icon: "facebook-f", url: "https://www.facebook.com/" },
-      { icon: "instagram", url: "https://www.instagram.com/" },
-      { icon: "twitter", url: "https://twitter.com/" },
-    ],
+    socialMedia: dataSocialMediia,
   }),
 
   computed: {
-    ...mapGetters("users", ["isLoading", "hasError"]),
+    ...mapGetters(["getLoadind", "getError"]),
     ...mapGetters("auth", ["getUser"]),
+    ...mapGetters("users", ["userPermissions"]),
+  },
+
+  watch: {
+    getError(newValue) {
+      if (newValue) {
+        this.errorMessage();
+        this.visibleAlert = true;
+      }
+    },
+    group() {
+      this.drawer = false;
+    },
   },
 
   methods: {
@@ -166,16 +180,27 @@ export default {
       localStorage.setItem("lastLanguage", this.$i18n.locale);
       console.log(this.$i18n.locale);
     },
-    // OnExit(){
-    //  this.singOutUser()
-    // }
-  },
-
-  watch: {
-    group() {
-      this.drawer = false;
+    closeAlert() {
+      setTimeout(() => {
+        this.visibleAlert = false;
+        this.messageError = null;
+      }, 3000);
+    },
+    errorMessage() {
+      const errorRegistrate = "auth/email-already-in-use";
+      const errorCredential = "auth/invalid-credential";
+      const code = this.getError?.code || "";
+      if (code.includes(errorCredential)) {
+        this.messageError = this.$t("errorMessage.auth");
+      } else if (code.includes(errorRegistrate)) {
+        this.messageError = this.$t("errorMessage.registrate");
+      } else {
+        this.messageError = this.$t("errorMessage.error");
+      }
+      this.closeAlert();
     },
   },
+
   mounted() {
     // Встановлює обробник подій для відстеження зміни ширини екрану
     window.addEventListener("resize", this.handleResize);
@@ -207,5 +232,8 @@ export default {
   font-style: normal;
   font-weight: 400;
   line-height: 27px;
+}
+.loading-spinner {
+  margin: 10% auto;
 }
 </style>

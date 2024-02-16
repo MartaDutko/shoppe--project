@@ -7,9 +7,6 @@
     >{{ mesageAlert }}</v-alert
   >
 </template>
-
-
-
 <script>
 export default {
   name: "AlertCard",
@@ -22,10 +19,6 @@ export default {
       type: String,
       default: "success",
     },
-    // positionAlert: {
-    //   type: String,
-    //   default: "fixed",
-    // },
   },
 };
 </script>

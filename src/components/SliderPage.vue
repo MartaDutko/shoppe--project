@@ -1,25 +1,25 @@
 <template>
-  <v-carousel hide-delimiters hide-controls :cycle="true" :show-arrows="false">
+  <v-carousel
+    hide-delimiters
+    hide-controls
+    :cycle="true"
+    :show-arrows="false"
+    :height="customCarousel"
+  >
     <v-carousel-item
       v-for="(photo, index) in photos"
       :key="index"
       :cover="true"
       :src="photo"
     >
-      <!-- потрібно передавати пропсом обєкт і передавати ціну і назву -->
-
-      <!-- currentCurrency() {
-      return this.languageTitle === "ua" ? "₴" : "$";
-    }, і потрібно зробити метод заміни валюти -->
-
       <div class="carousel-info">
         <div class="block-tittle">
           <p class="tittle">Gold big hoops</p>
           <p class="sub-tittle">$ 68,00</p>
         </div>
-        <div class="block-btn">
+        <div @click="onClick" class="block-btn">
           <v-btn variant="outlined" class="btn-view">
-            {{ $t("btnTitles.vievProdyct") }}
+            {{ $t("btnTitles.vievProduct") }}
           </v-btn>
         </div>
       </div>
@@ -33,8 +33,14 @@ export default {
   name: "SliderPage",
   data() {
     return {
+      customCarousel: "80vh",
       photos: [require("@/assets/img/1.png"), require("@/assets/img/1.png")],
     };
+  },
+  methods: {
+    onClick() {
+      this.$emit("onShop");
+    },
   },
 };
 </script>

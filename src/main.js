@@ -1,8 +1,5 @@
 import { createApp } from "vue";
 import App from "./App.vue";
-// import Vue from 'vue';
-
-// 
 
 import '../src/assets/styles/styles.css';
 import router from "./router";
@@ -26,10 +23,6 @@ import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import '@mdi/font/css/materialdesignicons.css';
-// 
-// import AlertCard from "@/components/AlertCard.vue";
-// const app = createApp(App);
-// app.component('alert-card', AlertCard);
 
 const vuetify = createVuetify({
     components,

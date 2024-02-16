@@ -1,8 +1,5 @@
 <template>
   <div class="form_registration">
-    <!-- <p>getUser-{{ getUser }}</p>
-    <p>getError-{{ getError }}</p> -->
-
     <v-card class="mx-auto elevation-0" max-width="500">
       <v-container>
         <v-text-field
@@ -45,11 +42,8 @@ export default {
   name: "SingInForm",
   data() {
     return {
-      //   btnForm: null,
       user: {},
-      // !переправити
       terms: false,
-      //   !!!! для пароля
       show1: false,
       show2: true,
 
@@ -66,7 +60,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters("auth", ["getUser", "getError"]),
+    ...mapGetters("auth", ["getUser"]),
     isDisabledBtn() {
       return (
         !this.emailRules.every((rule) => rule(this.user.email) === true) ||
@@ -77,43 +71,16 @@ export default {
   methods: {
     ...mapActions("auth", ["signInUser"]),
     async onEnter() {
-      // const redirectPath = this.$route.query.redirect || { name: "home" };
-      // this.$router.push(redirectPath);
-      // console.log("redirectPath");
-      // console.log(redirectPath);
       try {
         await this.signInUser(this.user);
-        // console.log("this.$route.query.redirect");
-        // console.log(this.$route.query.redirect);
         this.$router.push({
           path: this.$route.query.redirect ? this.$route.query.redirect : "/",
         });
       } catch (error) {
         console.log(error);
       }
-      // this.signInUser(this.user);
-      // if (this.$route.query.redirect) {
-      //   this.$router.push({
-      //     path: this.$route.query.redirect,
-      //   });
-      // } else {
-      //   this.$router.push({
-      //     name: "home",
-      //   });
-      // }
       this.user = {};
     },
-
-    // async onLogin() {
-    //   try {
-    //     await this.loginWithGoogle();
-    //     this.$router.push({
-    //       name: "products",
-    //     });
-    //   } catch (error) {
-    //     this.showAlert(error.message);
-    //   }
-    // },
   },
 };
 </script>

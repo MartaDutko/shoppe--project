@@ -1,115 +1,120 @@
 import { auth } from "@/firebase-config.js";
-// import { reject, resolve } from "core-js/fn/promise";
-// import DbOperations from '../helpers/DbOperations'
-// const collectionDB = new DbOperations('users')
-// import { reject, resolve } from "core-js/fn/promise";
-// import { EmailAuthProvider, signInWithCredential, signInWithEmailAndPassword, signOut } from 'firebase/auth'
-// 
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile } from "firebase/auth";
 
 export default {
     namespaced: true,
     state: {
         user: null,
-
-        loading: false,
-        error: null,
+        userUid: null
     },
     getters: {
         getUser: (state) => state.user,
-        getError: (state) => state.error,
+        getUserUid: (state) => state.userUid,
     },
     mutations: {
         setUser(state, user) {
             state.user = user
         },
-        setLoading(state, loading) {
-            state.loading = loading
-        },
-        setError(state, error) {
-            state.error = error
-        },
+        setUserUid(state, uid) {
+            state.userUid = uid
+        }
     },
     actions: {
+        async saveLoginUserData({ commit, dispatch }, loginResult) {
+            try {
+                let user = loginResult?.user;
+                console.log("user");
+                console.log(user);
+
+                // Збереження даних користувача в сторінку
+                commit('setUser', user);
+
+                let uid = user.uid;
+
+                // Очікування завантаження даних користувача після входу
+                commit('cart/setUserId', uid, { root: true });
+                commit('favorites/setUserId', uid, { root: true });
+
+                // Очікуємо на завантаження корзини і списку "улюблених"
+                await dispatch('cart/loadCartByUid', uid, { root: true });
+                await dispatch('favorites/loadFavoriteByUid', uid, { root: true });
+
+                dispatch('users/loadUserPermissions', user.uid, { root: true })
+            } catch (error) {
+                console.error('Помилка при обробці saveLoginUserData:', error);
+                throw error;
+            }
+        },
         createUser({ commit, dispatch }, userInfo) {
             let { email, password } = userInfo;
 
             return new Promise((resolve, reject) => {
                 createUserWithEmailAndPassword(auth, email, password)
                     .then(async (userCredential) => {
-                        const user = userCredential.user;
-                        commit('setUser', user);
-
-                        console.log('Реєстрація успішна. Додаткові дії з користувачем:', user);
 
                         const userToUpdate = auth.currentUser;
+                        await updateProfile(userToUpdate, {
+                            displayName: `${userInfo.first.toLowerCase()} ${userInfo.last.toLowerCase()}`
+                        });
 
-                        try {
-                            await updateProfile(userToUpdate, {
-                                displayName: `${userInfo.first.toLowerCase()} ${userInfo.last.toLowerCase()}`
-                            });
+                        // Збереження даних аутентифікації в localStorage
+                        localStorage.setItem('authCredential', JSON.stringify({
+                            email: userCredential?.user?.email,
+                            password: userInfo.password,
+                        }));
+                        dispatch("saveLoginUserData", userCredential,)
 
-                            let credential = user?.uid;
-                            localStorage.setItem('authCredential', JSON.stringify(credential));
-                            console.log("user.uid");
-                            console.log(user.uid);
-
-                            const userDoc = {
-                                uid: user.uid,
-                                email: user?.email,
-                                password: userInfo.password,
-                                first: userInfo.first.toLowerCase(),
-                                last: userInfo.last.toLowerCase()
-                            };
-
-                            await dispatch('users/addToDB', userDoc, { root: true });
-                            resolve(user);
-                        } catch (error) {
-                            commit('setError', error);
-                            reject(error);
-                        }
+                        resolve(userCredential);
                     })
                     .catch((error) => {
-                        commit('setError', error);
+                        commit('setError', error, { root: true });
                         reject(error);
                     });
             })
         },
 
-        signInUser({ commit }, { email, password }) {
-            console.log(email);
-            console.log("email");
-            console.log("state.user");
-            // console.log(state.user);
-
+        signInUser({ commit, dispatch }, { email, password }) {
             return new Promise((resolve, reject) => {
                 signInWithEmailAndPassword(auth, email, password)
-                    .then((userCredential) => {
-                        const user = userCredential.user;
-                        console.log("userCredential");
-                        console.log(user);
-                        console.log("user.displayName");
-                        console.log(user.displayName);
-                        commit('setUser', user);
-                        resolve(user)
-                        // console.log(');
+                    .then(async (userCredential) => {
+                        // Збереження даних аутентифікації в localStorage
+                        localStorage.setItem('authCredential', JSON.stringify({
+                            email: email,
+                            password: password
+                        }));
+                        dispatch("saveLoginUserData", userCredential,)
+                        resolve(userCredential)
                     })
                     .catch((error) => {
-                        console.log('err');
+                        console.log('error');
                         console.log(error);
-                        commit('setError', error);
+                        commit('setError', error, { root: true });
                         reject(error)
                     });
             })
         },
 
-        singOutUser({ commit }) {
+        async loginWithCredential({ dispatch }) {
+            let credential = localStorage.getItem('authCredential')
+            if (credential) {
+                credential = JSON.parse(credential)
+                await dispatch('signInUser', credential)
+            }
+        },
+
+        singOutUser({ commit, dispatch }) {
             signOut(auth).then(() => {
-                // localStorage.removeItem('authCredential')
+                localStorage.removeItem('authCredential')
                 commit('setUser', null)
-                // dispatch('users/clearPermissions', null, { root: true })
+                commit('setUserUid', null)
+                dispatch('users/clearPermissions', null, { root: true })
+                // Очікуємо на завантаження корзини і списку "улюблених"
+                commit('cart/setUserId', null, { root: true });
+                commit('favorites/setUserId', null, { root: true });
+                dispatch('cart/loadCartByUid', null, { root: true });
+                dispatch('favorites/loadFavoriteByUid', null, { root: true });
             }).catch((error) => {
-                commit('setError', error)
+                commit('setError', error, { root: true })
             });
         }
 

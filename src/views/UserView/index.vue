@@ -10,11 +10,7 @@
           :key="item.id"
           @click="onSelectNavItem(item.id)"
         >
-          <router-link
-            :to="{ name: item.name }"
-            class="tittle_navbar"
-            :class="{ selected: selectedNavItem === item.id }"
-          >
+          <router-link :to="{ name: item.name }" class="tittle_navbar">
             {{ item.title[carrentLanguage] }}</router-link
           >
         </div>
@@ -36,13 +32,10 @@ export default {
   },
   data() {
     return {
-      selectedNavItem: 2,
+      menuItems: menuItems,
     };
   },
   computed: {
-    menuItems() {
-      return menuItems;
-    },
     carrentLanguage() {
       return this.$i18n.locale === "ua" ? "ua" : "en";
     },
@@ -50,11 +43,14 @@ export default {
   methods: {
     ...mapActions("auth", ["singOutUser"]),
     onSelectNavItem(selectId) {
-      if (selectId === LOGOUT_ID) this.singOutUser();
-      else {
-        this.selectedNavItem = selectId;
+      if (selectId === LOGOUT_ID) {
+        this.singOutUser();
+        this.$router.push({ name: "home" });
       }
     },
+  },
+  created() {
+    this.$router.push({ name: this.menuItems[0].name });
   },
 };
 </script>
@@ -74,11 +70,6 @@ export default {
   }
 }
 .blockTitle {
-  // .blockTitle__user
-
-  &__user {
-  }
-
   // .blockTitle__accountTitle
 
   &__accountTitle {

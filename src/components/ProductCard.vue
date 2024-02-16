@@ -18,11 +18,19 @@
       <v-card-text class="product_sub-tittle">
         {{ dataCard.price }}<span>₴</span>
       </v-card-text>
-
-      <!-- блок для чорного фону та іконок -->
       <div class="overlay">
-        <v-icon class="icon heart" @click="addToFavorites">mdi-heart</v-icon>
-        <v-icon class="icon cart" @click="addToCart">mdi-cart</v-icon>
+        <v-icon
+          v-if="dataIconHeart"
+          class="icon heart"
+          @click="addToFavorites(dataCard)"
+          >mdi-heart</v-icon
+        >
+
+        <v-icon v-else class="icon cros" @click="deleteToFavorites(dataCard)">
+          mdi-close</v-icon
+        >
+
+        <v-icon class="icon cart" @click="addToCart(dataCard)">mdi-cart</v-icon>
       </div>
     </v-card>
   </div>
@@ -37,6 +45,10 @@ export default {
       type: Object,
       default: () => ({}),
     },
+    dataIconHeart: {
+      type: Boolean,
+      default: true,
+    },
   },
   data() {
     return {
@@ -49,19 +61,19 @@ export default {
         ? this.dataCard.title.ua
         : this.dataCard.title.en;
     },
-
-    // currentCurrency() {
-    //   return this.languageTitle === "ua" ? "₴" : "$";
-    // },
   },
   methods: {
-    addToCart() {
+    addToCart(obj) {
       console.log("Додано в корзину");
-      this.$emit("addCart");
+      this.$emit("addCart", obj);
     },
-    addToFavorites() {
+    addToFavorites(obj) {
       console.log("Додано в улюблене");
-      this.$emit("addFavorite");
+      this.$emit("addFavorite", obj);
+    },
+    deleteToFavorites(obj) {
+      console.log("Видалено з улюблених");
+      this.$emit("deleteFavorite", obj);
     },
   },
 };

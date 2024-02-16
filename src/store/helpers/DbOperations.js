@@ -28,8 +28,6 @@ class DbOperations {
     }
 
     addItem(item) {
-        // console.log('item');
-        // console.log(item);
         return new Promise((resolve, reject) => {
 
             addDoc(this.dbCollection, item)
@@ -37,7 +35,6 @@ class DbOperations {
                     resolve(true)
                 })
                 .catch((error) => {
-                    // console.log('er');
                     reject(error)
                 })
         })

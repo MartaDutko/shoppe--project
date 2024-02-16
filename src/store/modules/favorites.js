@@ -1,111 +1,129 @@
 import DbOperations from '../helpers/DbOperations'
 const collectionDB = new DbOperations('favorites')
+import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
+
 export default {
     namespaced: true,
     state: () => ({
-        // permissions: {},
-        favoritesData: [
-            // {
-            //     id: 1212,
-            //     productsIds: [111, 11111],
-            //     status: 'check'
-            // },
-            // {
-            //     id: 1212,
-            //     productsIds: [111, 11111],
-            //     status: 'check'
-            // }
-        ],
-
-        loading: false,
-        error: null,
+        favorites: {
+            favoritesList: [],
+        },
+        userId: null,
     }),
     getters: {
-        isLoading: (state) => state.loading,
-        hasError: (state) => state.error,
+        getUserId: (state) => state.userId,
 
-        getFavoritesData: (state) => state.favoritesData,
-        // getBusById: (state) => (itemId) => state.listBuses.find((item) => item.id == itemId),
+        getFavorites: (state) => state.favorites,
+        getFavoritesList: (state, getters, rootState, rootGetters) => {
+            return state.favorites.favoritesList.map(productId =>
+                rootGetters['products/getProductById'](productId))
+        },
     },
     mutations: {
-        setItemsList(state, itemsList) {
-            state.listBuses = itemsList
+        setFavorites(state, favorites) {
+            state.favorites = favorites
         },
-        deleteItem(state, itemId) {
-            state.listBuses = state.listBuses.filter((item) => item.id !== itemId)
+        addFavorite(state, idProduct) {
+            state.favorites.favoritesList.push(idProduct)
         },
-
-        setLoading(state, value) {
-            state.loading = value
+        setUserId(state, id) {
+            state.userId = id
         },
-        setError(state, error) {
-            state.error = error
-        },
+        deleteFavorite(state, id) {
+            state.favorites.favoritesList = state.favorites.favoritesList.filter(item =>
+                item !== id)
+        }
     },
     actions: {
-        loadlistBuses({ commit }) {
-            commit('setError', null)
-            commit('setLoading', true)
+        // Знаходження, або створення favorite користувача
+        async loadFavoriteByUid({ commit, dispatch, getters }) {
 
-            collectionDB
-                .loadItemsList()
-                .then((list) => {
-                    commit('setItemsList', list)
-                })
-                .catch((error) => {
-                    commit('setError', error)
-                })
-                .finally(() => {
-                    commit('setLoading', false)
-                })
+            const db = getFirestore();
+            const favoriteCollection = collection(db, 'favorites');
+
+            // Створення запиту до колекції, який фільтрує документи за полем 'uid'
+
+            const q = query(favoriteCollection, where('uid', '==', getters.getUserId));
+            try {
+                const querySnapshot = await getDocs(q);
+
+                // Перевірка, чи знайдено документи
+                if (!querySnapshot.empty) {
+                    // Отримання першого знайденого документу
+                    const favoriteDoc = querySnapshot.docs[0];
+
+                    // Повернення даних favorite користувача
+                    commit('setFavorites', {
+                        id: favoriteDoc.id,
+                        favoritesList: favoriteDoc.data().favoritesList,
+                        uid: favoriteDoc.data().uid
+                    })
+                } else {
+                    console.log("Favorite немає");
+                    const favoritesUser = { favoritesList: [], uid: getters.getUserId }
+                    dispatch('addToDBFavorite', favoritesUser)
+                }
+            } catch (error) {
+                console.log('Помилка при отриманні favorite:', error);
+            }
         },
-        addBuses({ commit, dispatch }, item) {
-            commit('setError', null)
-            commit('setLoading', true)
-            collectionDB
-                .addItem(item)
-                .then(() => {
-                    dispatch('loadlistBuses')
-                })
-                .catch((error) => {
-                    commit('setError', error)
-                })
-                .finally(() => {
-                    commit('setLoading', false)
-                })
+        async addToDBFavorite({ commit, dispatch }, favoriteDoc) {
+            console.log("favoriteDoc addToDB");
+            console.log(favoriteDoc);
+            commit('setError', null, { root: true });
+            commit('setLoading', true, { root: true });
+
+            try {
+                // Додавання favorite до бази даних
+                await collectionDB.addItem(favoriteDoc);
+                await dispatch('loadFavoriteByUid')
+            } catch (error) {
+                console.log(error);
+                commit('setError', error, { root: true });
+            } finally {
+                console.log("finall");
+                commit('setLoading', false, { root: true });
+            }
         },
-        deleteBuses({ commit }, itemId) {
-            commit('setError', null)
-            commit('setLoading', true)
 
-            collectionDB
-                .deleteItem(itemId)
-                .then(() => {
-
-                    commit('deleteItem', itemId)
-                })
-                .catch((error) => {
-                    commit('setError', error)
-                })
-                .finally(() => {
-                    commit('setLoading', false)
-                })
-        },
-        updateBuses({ commit, dispatch }, { itemId, data }) {
-            commit('setError', null)
-            commit('setLoading', true)
-
+        updateFavorites({ commit, dispatch, }, { itemId, data }, shouldReloadPage) {
+            commit('setError', null, { root: true })
+            if (shouldReloadPage)
+                commit('setLoading', true, { root: true })
             collectionDB
                 .updateItem(itemId, data)
                 .then(() => {
-                    dispatch('loadlistBuses')
+                    if (shouldReloadPage) {
+                        dispatch('loadlistFavorites')
+                    }
                 })
                 .catch((error) => {
-                    commit('setError', error)
+                    commit('setError', error, { root: true })
                 })
                 .finally(() => {
-                    commit('setLoading', false)
+                    commit('setLoading', false, { root: true })
                 })
+        },
+
+        async addFavorite({ commit, getters, dispatch }, idProduct) {
+            let isExist = getters.getFavorites.favoritesList.find(item => item === idProduct)
+            if (!isExist)
+                await commit('addFavorite', idProduct)
+            else
+                commit('deleteFavorite', idProduct)
+            let dataFav = {
+                itemId: getters.getFavorites.id,
+                data: getters.getFavorites
+            }
+            await dispatch('updateFavorites', dataFav, false)
+        },
+        async deleteFavorite({ commit, getters, dispatch }, idProduct) {
+            await commit('deleteFavorite', idProduct)
+            let data = {
+                itemId: getters.getFavorites.id,
+                data: getters.getFavorites
+            }
+            await dispatch('updateFavorites', data, false)
         },
         loadFiltered({ commit }, { fieldTitle, compareOperator, valueToCompare }) {
             commit('setError', null)

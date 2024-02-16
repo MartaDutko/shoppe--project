@@ -1,21 +1,20 @@
 {
     "menu": {
         "home": "Home",
-        "shop": "Shop",
+        "adminAdd": "Add product",
         "blog": "Blog",
         "ourStory": "Our story"
     },
     "footerMenu": {
         "contacts": "Contacts",
-        "termsServices": "Terms of services",
-        "shipingReturns": "Shiping and returns"
+        "privycyPolicy": "Privycy Policy"
     },
     "titles": {
         "shopLatest": "Shop the latest",
         "account": "My account"
     },
     "btnTitles": {
-        "vievProdyct": "View product",
+        "vievProduct": "View all",
         "add": "Add to cart",
         "singIn": "Sing in",
         "singOut": "Sing out",
@@ -57,6 +56,7 @@
     },
     "userAccountMessage": {
         "emptyOrders": "No order has been made yet",
-        "emptyFavorite": "No favorites available yet."
+        "emptyFavorite": "No favorites available yet.",
+        "emptyBasket": "Your shopping cart is empty"
     }
 }

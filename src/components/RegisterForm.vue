@@ -1,7 +1,6 @@
 <template>
   <div class="form_registration">
     <v-card class="mx-auto elevation-0" max-width="500">
-      <!-- <p>getError-{{ getError }}</p> -->
       <v-container>
         <v-text-field
           v-model="user.first"
@@ -61,12 +60,8 @@ export default {
   name: "RegisterForm",
   data() {
     return {
-      //   btnForm: null,
       user: {},
-      // !переправити
       terms: false,
-
-      //   !!!! для пароля
       show1: false,
       show2: true,
       passwordRules: [
@@ -101,12 +96,8 @@ export default {
   methods: {
     ...mapActions("auth", ["createUser"]),
     async onEnter() {
-      // this.createUser(this.user);
-      // this.user = {};
       try {
         await this.createUser(this.user);
-        // console.log("this.$route.query.redirect");
-        // console.log(this.$route.query.redirect);
         this.$router.push({
           name: "home",
         });

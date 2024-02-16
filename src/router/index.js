@@ -1,19 +1,14 @@
 import { createRouter, createWebHistory } from "vue-router";
 import store from "@/store";
 import HomeView from "@/views/HomeView";
-import ShopView from "@/views/ShopView";
+import AdminAddView from "@/views/AdminAddView";
 import BlogView from "@/views/BlogView";
 import OurStoryView from "@/views/OurStoryView";
-import SearchView from "@/views/SearchView";
 import BasketView from "@/views/BasketView";
 import UserView from "@/views/UserView";
 import ContactView from "@/views/ContactView";
-import TearmsOfServices from "@/views/TearmsOfServices";
-import ShipingAndReturns from "@/views/ShipingAndReturns";
+import PrivicyPolicyView from "@/views/PrivicyPolicyView";
 import LoginView from "@/views/LoginView";
-// 
-// import DashboardView from "@/views/UserView/DashboardView.vue";
-// import OrdersView from "@/views/UserView/OrdersView.vue";
 
 const routes = [
   {
@@ -23,17 +18,19 @@ const routes = [
     meta: { requiredAuth: false }
 
   },
+
   {
-    path: "/shop",
-    name: "shop",
-    component: ShopView,
+    path: "/admin_add:id?",
+    name: "admin_add",
+    props: true,
+    component: AdminAddView,
     meta: { requiredAuth: false }
   },
   {
     path: "/blog",
     name: "blog",
     component: BlogView,
-    meta: { requiredAuth: true }
+    meta: { requiredAuth: false }
   },
   {
     path: "/our_story",
@@ -41,54 +38,27 @@ const routes = [
     component: OurStoryView,
     meta: { requiredAuth: false }
   },
-  // ! delete
-  {
-    path: "/search",
-    name: "search",
-    component: SearchView,
-    meta: { requiredAuth: false }
-  },
-  // !
   {
     path: "/basket",
     name: "basket",
     component: BasketView,
-    meta: { requiredAuth: false }
+    meta: { requiredAuth: true }
   },
   {
     path: "/user",
     name: "user",
     component: UserView,
-    // meta: { requiredAuth: true }
+    meta: { requiredAuth: true },
     children: [
-      // {
-      //   path: 'dashboard',
-      //   name: 'dashboard',
-      //   component: () => import('@/views/UserView/DashboardView.vue'),
-      //   // component: DashboardView
-      // },
-      {
-        path: 'orders',
-        name: 'orders',
-        component: () => import('@/views/UserView/OrdersView.vue'),
-        // component: OrdersView
-      },
-      // {
-      //   path: 'adresses',
-      //   name: 'adresses',
-      //   component: () => import('@/views/UserView/AddressesView.vue'),
-      //   // component:DashboardView
-      // },
       {
         path: 'favorires',
         name: 'favorires',
         component: () => import('@/views/UserView/FavoritesView.vue'),
-        // component:DashboardView
       },
     ]
 
   },
-  // !!!!!!!!!!!!!!!!!!!!!!!!!
+  // footer nav-bar
   {
     path: "/contact",
     name: "contact",
@@ -96,18 +66,12 @@ const routes = [
     meta: { requiredAuth: false }
   },
   {
-    path: "/tearms_services",
-    name: "tearms_of_services",
-    component: TearmsOfServices,
+    path: "/privicy_policyView",
+    name: "privicy_policyView",
+    component: PrivicyPolicyView,
     meta: { requiredAuth: false }
   },
-  {
-    path: "/shiping_returns",
-    name: "shiping_end_returns",
-    component: ShipingAndReturns,
-    meta: { requiredAuth: false }
-  },
-  // !!!!!!!!!!!!!!!!
+
   {
     path: "/login",
     name: "login",
@@ -123,64 +87,18 @@ const routes = [
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
-  // history: createWebHashHistory(),
   routes,
 });
 
-// if (!isAuthenticated) isAuthenticated = await store.dispatch('auth/loginWithCredential')
-
-// router.beforeEach(async (to) => {
-//   if (to.meta?.requiredAuth) {
-//     let isAuthenticated = await store.state.auth.user
-//     console.log("isAuthenticated2222222");
-//     console.log(isAuthenticated);
-//     if (!isAuthenticated)
-//       return {
-//         name: "login",
-//         query: { redirect: to.fullPath }
-//       }
-//   }
-// })
-
-// const redirect = to.query.redirect || '/';
-
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to) => {
+  let isAuthenticated = store.state.auth.user
+  if (!isAuthenticated) isAuthenticated = await store.dispatch('auth/loginWithCredential')
 
   if (to.meta?.requiredAuth) {
-    try {
-      let isAuthenticated = await store.state.auth.user;
-      console.log("isAuthenticated2222222");
-      console.log(isAuthenticated);
+    if (!isAuthenticated)
+      return ({ name: "login", query: { redirect: to.fullPath ? to.fullPath : "home" } });
 
-      if (!isAuthenticated) {
-        return next({ name: "login", query: { redirect: to.fullPath } });
-
-      }
-    } catch (error) {
-      console.error("Error during authentication:", error);
-      next({ name: "error" });
-    }
   }
-
-  // Продовжити навігацію
-  next();
-});
-
-// router.beforeEach(async (to) => {
-//   if (to.meta?.requiredAuth) {
-//     let isAuthenticated = store.state.auth.user;
-//     console.log("isAuthenticated:", isAuthenticated);
-//     console.log("to.fullPath:", to.fullPath);
-
-//     if (!isAuthenticated) {
-//       // Редирект на сторінку логіну з параметром redirect
-//       return {
-//         name: "login",
-//         // query: { redirect: "/blog" }
-//       };
-//     }
-//   }
-
-// });
+})
 
 export default router;

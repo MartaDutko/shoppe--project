@@ -1,16 +1,13 @@
 @font-face {
     font-family: "Dm_Sans";
-   src: url('../fonts//DM_Sans/static/DMSans-Light.ttf') format('ttf');
+    src: url("../fonts//DM_Sans/static/DMSans-Light.ttf") format("ttf");
 }
 body {
     font-family: "Dm_Sans", sans-serif;
     height: 100vh;
     padding: 5% 5% 10% 5%;
 }
-#app {
-  /* height: 100vh; */
-  }
-a{
+a {
     text-decoration: none;
     color: black;
 }
